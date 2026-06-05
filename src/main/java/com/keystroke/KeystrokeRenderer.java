@@ -9,8 +9,8 @@ import org.lwjgl.opengl.GL11;
 
 public class KeystrokeRenderer {
 
-    private static final int BOX_SIZE = 28;
-    private static final int BOX_SPACING = 3;
+    private static final int BOX_SIZE = 20;
+    private static final int BOX_SPACING = 2;
 
     @SubscribeEvent
     public void onRenderOverlay(RenderGameOverlayEvent.Post event) {
@@ -59,15 +59,15 @@ public class KeystrokeRenderer {
         // Draw border
         drawBorder(x, y, x + BOX_SIZE, y + BOX_SIZE, 0xFF808080, 1.0F);
 
-        // Draw text (bold)
+        // Draw text (larger)
         int textX = x + BOX_SIZE / 2 - mc.fontRendererObj.getStringWidth(text) / 2;
         int textY = y + BOX_SIZE / 2 - 4;
         mc.fontRendererObj.drawStringWithShadow(text, textX, textY, textColor);
     }
 
     private void drawCPSBox(Minecraft mc, int x, int y, String text) {
-        int bgColor = 0xFF000000; // Black background always
-        int textColor = 0xFFFFFFFF; // White text always
+        int bgColor = 0xFF1a5f2a; // Dark green background
+        int textColor = 0xFFFFFFFF; // White text
 
         int boxWidth = BOX_SIZE * 3 + BOX_SPACING * 2;
 
@@ -77,7 +77,7 @@ public class KeystrokeRenderer {
         // Draw border
         drawBorder(x, y, x + boxWidth, y + BOX_SIZE, 0xFF808080, 1.0F);
 
-        // Draw text (bold)
+        // Draw text (larger)
         int textX = x + boxWidth / 2 - mc.fontRendererObj.getStringWidth(text) / 2;
         int textY = y + BOX_SIZE / 2 - 4;
         mc.fontRendererObj.drawStringWithShadow(text, textX, textY, textColor);

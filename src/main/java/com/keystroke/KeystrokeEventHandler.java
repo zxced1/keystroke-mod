@@ -13,7 +13,8 @@ public class KeystrokeEventHandler {
     
     public static int leftClickCount = 0;
     public static int rightClickCount = 0;
-    public static long lastClickTime = 0;
+    private static long lastLeftClickTime = 0;
+    private static long lastRightClickTime = 0;
     private static boolean wasLeftPressed = false;
     private static boolean wasRightPressed = false;
 
@@ -22,7 +23,7 @@ public class KeystrokeEventHandler {
         if (event.phase == TickEvent.Phase.END) {
             updateKeyStates();
             updateMouseStates();
-            resetCPSCounter();
+            resetCPSCounters();
         }
     }
 
@@ -40,12 +41,14 @@ public class KeystrokeEventHandler {
     }
 
     private void updateMouseStates() {
+        long currentTime = System.currentTimeMillis();
+
         // Left click
         if (Mouse.isButtonDown(0)) {
             leftMousePressed = true;
             if (!wasLeftPressed) {
                 leftClickCount++;
-                lastClickTime = System.currentTimeMillis();
+                lastLeftClickTime = currentTime;
                 wasLeftPressed = true;
             }
         } else {
@@ -58,7 +61,7 @@ public class KeystrokeEventHandler {
             rightMousePressed = true;
             if (!wasRightPressed) {
                 rightClickCount++;
-                lastClickTime = System.currentTimeMillis();
+                lastRightClickTime = currentTime;
                 wasRightPressed = true;
             }
         } else {
@@ -67,10 +70,16 @@ public class KeystrokeEventHandler {
         }
     }
 
-    private void resetCPSCounter() {
+    private void resetCPSCounters() {
         long currentTime = System.currentTimeMillis();
-        if (currentTime - lastClickTime > 1000) {
+
+        // Reset left clicks after 1 second of no clicks
+        if (currentTime - lastLeftClickTime > 1000) {
             leftClickCount = 0;
+        }
+
+        // Reset right clicks after 1 second of no clicks
+        if (currentTime - lastRightClickTime > 1000) {
             rightClickCount = 0;
         }
     }

@@ -1,10 +1,10 @@
 package com.keystroke;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 public class KeystrokeRenderer {
@@ -34,7 +34,7 @@ public class KeystrokeRenderer {
         drawKeyBox(mc, baseX, baseY + 2 * (BOX_SIZE + BOX_SPACING), "LMB", KeystrokeEventHandler.leftMousePressed);
         drawKeyBox(mc, baseX + BOX_SIZE + BOX_SPACING, baseY + 2 * (BOX_SIZE + BOX_SPACING), "RMB", KeystrokeEventHandler.rightMousePressed);
 
-        // Row 4: CPS box with format "LEFT | RIGHT"
+        // Row 4: CPS box with format "0 | 0"
         int leftClicks = KeystrokeEventHandler.leftClickCount;
         int rightClicks = KeystrokeEventHandler.rightClickCount;
         String cpsText = leftClicks + " | " + rightClicks;
@@ -42,35 +42,43 @@ public class KeystrokeRenderer {
     }
 
     private void drawKeyBox(Minecraft mc, int x, int y, String text, boolean pressed) {
-        int bgColor = KeystrokeConfig.COLOR_INACTIVE; // Always black
-        int borderColor = pressed ? 0xFFFFFFFF : 0xFF808080; // White border if pressed, gray if not
-        int textColor = pressed ? 0xFFFFFFFF : 0xFFFFFFFF; // White text
+        int bgColor;
+        int textColor;
+
+        if (pressed) {
+            bgColor = 0xFFFFFFFF; // White background
+            textColor = 0xFF000000; // Black text
+        } else {
+            bgColor = 0xFF000000; // Black background
+            textColor = 0xFFFFFFFF; // White text
+        }
 
         // Draw background
         drawRect(x, y, x + BOX_SIZE, y + BOX_SIZE, bgColor);
 
         // Draw border
-        drawBorder(x, y, x + BOX_SIZE, y + BOX_SIZE, borderColor, pressed ? 2.0F : 1.0F);
+        drawBorder(x, y, x + BOX_SIZE, y + BOX_SIZE, 0xFF808080, 1.0F);
 
-        // Draw text (bold/larger if pressed)
+        // Draw text (bold)
         int textX = x + BOX_SIZE / 2 - mc.fontRendererObj.getStringWidth(text) / 2;
         int textY = y + BOX_SIZE / 2 - 4;
         mc.fontRendererObj.drawStringWithShadow(text, textX, textY, textColor);
     }
 
     private void drawCPSBox(Minecraft mc, int x, int y, String text) {
-        int bgColor = KeystrokeConfig.COLOR_INACTIVE; // Black
-        int borderColor = 0xFF808080; // Gray border
-        int textColor = 0xFFFFFFFF; // White text
+        int bgColor = 0xFF000000; // Black background always
+        int textColor = 0xFFFFFFFF; // White text always
+
+        int boxWidth = BOX_SIZE * 3 + BOX_SPACING * 2;
 
         // Draw background
-        drawRect(x, y, x + BOX_SIZE * 3 + BOX_SPACING * 2, y + BOX_SIZE, bgColor);
+        drawRect(x, y, x + boxWidth, y + BOX_SIZE, bgColor);
 
         // Draw border
-        drawBorder(x, y, x + BOX_SIZE * 3 + BOX_SPACING * 2, y + BOX_SIZE, borderColor, 1.0F);
+        drawBorder(x, y, x + boxWidth, y + BOX_SIZE, 0xFF808080, 1.0F);
 
-        // Draw text
-        int textX = x + (BOX_SIZE * 3 + BOX_SPACING * 2) / 2 - mc.fontRendererObj.getStringWidth(text) / 2;
+        // Draw text (bold)
+        int textX = x + boxWidth / 2 - mc.fontRendererObj.getStringWidth(text) / 2;
         int textY = y + BOX_SIZE / 2 - 4;
         mc.fontRendererObj.drawStringWithShadow(text, textX, textY, textColor);
     }

@@ -1,13 +1,16 @@
 package com.keystroke;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 public class KeystrokeRenderer {
+
+    private static final int BOX_SIZE = 28;
+    private static final int BOX_SPACING = 3;
 
     @SubscribeEvent
     public void onRenderOverlay(RenderGameOverlayEvent.Post event) {
@@ -18,52 +21,58 @@ public class KeystrokeRenderer {
     private void drawKeystrokeDisplay(Minecraft mc) {
         int baseX = KeystrokeConfig.posX;
         int baseY = KeystrokeConfig.posY;
-        int keySize = 50;
-        int smallSpacing = 10;
 
-        // Row 1: Up arrow in box (centered, larger)
-        drawKeyBox(mc, baseX + 15, baseY, "↑", KeystrokeEventHandler.keysPressed[Keyboard.KEY_W]);
+        // Row 1: Up arrow in box
+        drawKeyBox(mc, baseX + BOX_SIZE + BOX_SPACING, baseY, "↑", KeystrokeEventHandler.keysPressed[Keyboard.KEY_W]);
 
-        // Row 2: Left, Down, Right arrows - TEXT ONLY (small)
-        drawText(mc, baseX, baseY + keySize + 20, "←", KeystrokeEventHandler.keysPressed[Keyboard.KEY_A]);
-        drawText(mc, baseX + 35, baseY + keySize + 20, "↓", KeystrokeEventHandler.keysPressed[Keyboard.KEY_S]);
-        drawText(mc, baseX + 70, baseY + keySize + 20, "→", KeystrokeEventHandler.keysPressed[Keyboard.KEY_D]);
+        // Row 2: Left, Down, Right arrows in boxes
+        drawKeyBox(mc, baseX, baseY + BOX_SIZE + BOX_SPACING, "←", KeystrokeEventHandler.keysPressed[Keyboard.KEY_A]);
+        drawKeyBox(mc, baseX + BOX_SIZE + BOX_SPACING, baseY + BOX_SIZE + BOX_SPACING, "↓", KeystrokeEventHandler.keysPressed[Keyboard.KEY_S]);
+        drawKeyBox(mc, baseX + 2 * (BOX_SIZE + BOX_SPACING), baseY + BOX_SIZE + BOX_SPACING, "→", KeystrokeEventHandler.keysPressed[Keyboard.KEY_D]);
 
-        // Row 3: LMB and RMB - TEXT ONLY
-        drawText(mc, baseX, baseY + keySize + 50, "LMB", KeystrokeEventHandler.leftMousePressed);
-        drawText(mc, baseX + 60, baseY + keySize + 50, "RMB", KeystrokeEventHandler.rightMousePressed);
+        // Row 3: LMB and RMB boxes
+        drawKeyBox(mc, baseX, baseY + 2 * (BOX_SIZE + BOX_SPACING), "LMB", KeystrokeEventHandler.leftMousePressed);
+        drawKeyBox(mc, baseX + BOX_SIZE + BOX_SPACING, baseY + 2 * (BOX_SIZE + BOX_SPACING), "RMB", KeystrokeEventHandler.rightMousePressed);
 
-        // Row 4: Numbers 4, |, 0 - TEXT ONLY
-        drawText(mc, baseX, baseY + keySize + 80, "4", false);
-        drawText(mc, baseX + 35, baseY + keySize + 80, "|", false);
-        drawText(mc, baseX + 70, baseY + keySize + 80, "0", false);
-
-        // Draw CPS counter above
-        String cpsText = "CPS: " + KeystrokeEventHandler.getCPS();
-        mc.fontRendererObj.drawStringWithShadow(cpsText, baseX, baseY - 20, 0xFFFFFF);
+        // Row 4: CPS box with format "LEFT | RIGHT"
+        int leftClicks = KeystrokeEventHandler.leftClickCount;
+        int rightClicks = KeystrokeEventHandler.rightClickCount;
+        String cpsText = leftClicks + " | " + rightClicks;
+        drawCPSBox(mc, baseX, baseY + 3 * (BOX_SIZE + BOX_SPACING), cpsText);
     }
 
     private void drawKeyBox(Minecraft mc, int x, int y, String text, boolean pressed) {
-        int keySize = 50;
-        int bgColor = pressed ? KeystrokeConfig.COLOR_ACTIVE : KeystrokeConfig.COLOR_INACTIVE;
-        int textColor = pressed ? KeystrokeConfig.COLOR_TEXT_ACTIVE : KeystrokeConfig.COLOR_TEXT_INACTIVE;
-        int borderColor = KeystrokeConfig.COLOR_BORDER;
+        int bgColor = KeystrokeConfig.COLOR_INACTIVE; // Always black
+        int borderColor = pressed ? 0xFFFFFFFF : 0xFF808080; // White border if pressed, gray if not
+        int textColor = pressed ? 0xFFFFFFFF : 0xFFFFFFFF; // White text
 
         // Draw background
-        drawRect(x, y, x + keySize, y + keySize, bgColor);
+        drawRect(x, y, x + BOX_SIZE, y + BOX_SIZE, bgColor);
 
         // Draw border
-        drawBorder(x, y, x + keySize, y + keySize, borderColor);
+        drawBorder(x, y, x + BOX_SIZE, y + BOX_SIZE, borderColor, pressed ? 2.0F : 1.0F);
 
-        // Draw text
-        int textX = x + keySize / 2 - mc.fontRendererObj.getStringWidth(text) / 2;
-        int textY = y + keySize / 2 - 4;
+        // Draw text (bold/larger if pressed)
+        int textX = x + BOX_SIZE / 2 - mc.fontRendererObj.getStringWidth(text) / 2;
+        int textY = y + BOX_SIZE / 2 - 4;
         mc.fontRendererObj.drawStringWithShadow(text, textX, textY, textColor);
     }
 
-    private void drawText(Minecraft mc, int x, int y, String text, boolean pressed) {
-        int textColor = pressed ? 0xFF00FF00 : 0xFFFFFFFF; // Green if pressed, white if not
-        mc.fontRendererObj.drawStringWithShadow(text, x, y, textColor);
+    private void drawCPSBox(Minecraft mc, int x, int y, String text) {
+        int bgColor = KeystrokeConfig.COLOR_INACTIVE; // Black
+        int borderColor = 0xFF808080; // Gray border
+        int textColor = 0xFFFFFFFF; // White text
+
+        // Draw background
+        drawRect(x, y, x + BOX_SIZE * 3 + BOX_SPACING * 2, y + BOX_SIZE, bgColor);
+
+        // Draw border
+        drawBorder(x, y, x + BOX_SIZE * 3 + BOX_SPACING * 2, y + BOX_SIZE, borderColor, 1.0F);
+
+        // Draw text
+        int textX = x + (BOX_SIZE * 3 + BOX_SPACING * 2) / 2 - mc.fontRendererObj.getStringWidth(text) / 2;
+        int textY = y + BOX_SIZE / 2 - 4;
+        mc.fontRendererObj.drawStringWithShadow(text, textX, textY, textColor);
     }
 
     private void drawRect(int x1, int y1, int x2, int y2, int color) {
@@ -81,13 +90,13 @@ public class KeystrokeRenderer {
         GL11.glEnd();
     }
 
-    private void drawBorder(int x1, int y1, int x2, int y2, int color) {
+    private void drawBorder(int x1, int y1, int x2, int y2, int color, float width) {
         float red = (color >> 16 & 255) / 255.0F;
         float green = (color >> 8 & 255) / 255.0F;
         float blue = (color & 255) / 255.0F;
 
         GL11.glColor3f(red, green, blue);
-        GL11.glLineWidth(2.0F);
+        GL11.glLineWidth(width);
         GL11.glBegin(GL11.GL_LINE_LOOP);
         GL11.glVertex2f(x1, y1);
         GL11.glVertex2f(x2, y1);

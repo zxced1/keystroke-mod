@@ -2,6 +2,7 @@ package com.keystroke;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
@@ -9,7 +10,7 @@ import org.lwjgl.opengl.GL11;
 
 public class KeystrokeRenderer {
 
-    private static final int BOX_SIZE = 20;
+    private static final int BOX_SIZE = 22;
     private static final int BOX_SPACING = 2;
 
     @SubscribeEvent
@@ -22,19 +23,19 @@ public class KeystrokeRenderer {
         int baseX = KeystrokeConfig.posX;
         int baseY = KeystrokeConfig.posY;
 
-        // Row 1: Up arrow in box
+        // Row 1: Up arrow
         drawKeyBox(mc, baseX + BOX_SIZE + BOX_SPACING, baseY, "↑", KeystrokeEventHandler.keysPressed[Keyboard.KEY_W]);
 
-        // Row 2: Left, Down, Right arrows in boxes
+        // Row 2: Left, Down, Right
         drawKeyBox(mc, baseX, baseY + BOX_SIZE + BOX_SPACING, "←", KeystrokeEventHandler.keysPressed[Keyboard.KEY_A]);
         drawKeyBox(mc, baseX + BOX_SIZE + BOX_SPACING, baseY + BOX_SIZE + BOX_SPACING, "↓", KeystrokeEventHandler.keysPressed[Keyboard.KEY_S]);
         drawKeyBox(mc, baseX + 2 * (BOX_SIZE + BOX_SPACING), baseY + BOX_SIZE + BOX_SPACING, "→", KeystrokeEventHandler.keysPressed[Keyboard.KEY_D]);
 
-        // Row 3: LMB and RMB boxes
+        // Row 3: LMB and RMB
         drawKeyBox(mc, baseX, baseY + 2 * (BOX_SIZE + BOX_SPACING), "LMB", KeystrokeEventHandler.leftMousePressed);
         drawKeyBox(mc, baseX + BOX_SIZE + BOX_SPACING, baseY + 2 * (BOX_SIZE + BOX_SPACING), "RMB", KeystrokeEventHandler.rightMousePressed);
 
-        // Row 4: CPS box with format "0 | 0"
+        // Row 4: CPS box
         int leftClicks = KeystrokeEventHandler.leftClickCount;
         int rightClicks = KeystrokeEventHandler.rightClickCount;
         String cpsText = leftClicks + " | " + rightClicks;
@@ -57,16 +58,14 @@ public class KeystrokeRenderer {
         drawRect(x, y, x + BOX_SIZE, y + BOX_SIZE, bgColor);
 
         // Draw border
-        drawBorder(x, y, x + BOX_SIZE, y + BOX_SIZE, 0xFF808080, 1.0F);
+        drawBorder(x, y, x + BOX_SIZE, y + BOX_SIZE, 0xFF404040, 1.5F);
 
-        // Draw text (larger)
-        int textX = x + BOX_SIZE / 2 - mc.fontRendererObj.getStringWidth(text) / 2;
-        int textY = y + BOX_SIZE / 2 - 4;
-        mc.fontRendererObj.drawStringWithShadow(text, textX, textY, textColor);
+        // Draw text bold
+        drawBoldText(mc, text, x + BOX_SIZE / 2, y + BOX_SIZE / 2, textColor);
     }
 
     private void drawCPSBox(Minecraft mc, int x, int y, String text) {
-        int bgColor = 0xFF1a5f2a; // Dark green background
+        int bgColor = 0xFF2d4a3a; // Dark green-black
         int textColor = 0xFFFFFFFF; // White text
 
         int boxWidth = BOX_SIZE * 3 + BOX_SPACING * 2;
@@ -75,12 +74,21 @@ public class KeystrokeRenderer {
         drawRect(x, y, x + boxWidth, y + BOX_SIZE, bgColor);
 
         // Draw border
-        drawBorder(x, y, x + boxWidth, y + BOX_SIZE, 0xFF808080, 1.0F);
+        drawBorder(x, y, x + boxWidth, y + BOX_SIZE, 0xFF404040, 1.5F);
 
-        // Draw text (larger)
-        int textX = x + boxWidth / 2 - mc.fontRendererObj.getStringWidth(text) / 2;
-        int textY = y + BOX_SIZE / 2 - 4;
-        mc.fontRendererObj.drawStringWithShadow(text, textX, textY, textColor);
+        // Draw text bold
+        drawBoldText(mc, text, x + boxWidth / 2, y + BOX_SIZE / 2, textColor);
+    }
+
+    private void drawBoldText(Minecraft mc, String text, int centerX, int centerY, int color) {
+        FontRenderer fr = mc.fontRendererObj;
+        int width = fr.getStringWidth(text);
+        int x = centerX - width / 2;
+        int y = centerY - 4;
+
+        // Draw text twice for bold effect
+        fr.drawStringWithShadow(text, x, y, color);
+        fr.drawStringWithShadow(text, x + 1, y, color);
     }
 
     private void drawRect(int x1, int y1, int x2, int y2, int color) {

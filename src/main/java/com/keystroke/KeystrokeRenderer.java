@@ -18,33 +18,33 @@ public class KeystrokeRenderer {
     private void drawKeystrokeDisplay(Minecraft mc) {
         int baseX = KeystrokeConfig.posX;
         int baseY = KeystrokeConfig.posY;
-        int keySize = KeystrokeConfig.KEY_SIZE;
-        int spacing = KeystrokeConfig.KEY_SPACING;
+        int keySize = 50;
+        int smallSpacing = 10;
 
-        // Row 1: Up arrow (centered)
-        drawKey(mc, baseX + keySize + spacing, baseY, "↑", KeystrokeEventHandler.keysPressed[Keyboard.KEY_W]);
+        // Row 1: Up arrow in box (centered, larger)
+        drawKeyBox(mc, baseX + 15, baseY, "↑", KeystrokeEventHandler.keysPressed[Keyboard.KEY_W]);
 
-        // Row 2: Left, Down, Right arrows
-        drawKey(mc, baseX, baseY + keySize + spacing, "←", KeystrokeEventHandler.keysPressed[Keyboard.KEY_A]);
-        drawKey(mc, baseX + keySize + spacing, baseY + keySize + spacing, "↓", KeystrokeEventHandler.keysPressed[Keyboard.KEY_S]);
-        drawKey(mc, baseX + 2 * (keySize + spacing), baseY + keySize + spacing, "→", KeystrokeEventHandler.keysPressed[Keyboard.KEY_D]);
+        // Row 2: Left, Down, Right arrows - TEXT ONLY (small)
+        drawText(mc, baseX, baseY + keySize + 20, "←", KeystrokeEventHandler.keysPressed[Keyboard.KEY_A]);
+        drawText(mc, baseX + 35, baseY + keySize + 20, "↓", KeystrokeEventHandler.keysPressed[Keyboard.KEY_S]);
+        drawText(mc, baseX + 70, baseY + keySize + 20, "→", KeystrokeEventHandler.keysPressed[Keyboard.KEY_D]);
 
-        // Row 3: LMB and RMB
-        drawKey(mc, baseX, baseY + 2 * (keySize + spacing), "LMB", KeystrokeEventHandler.leftMousePressed);
-        drawKey(mc, baseX + keySize + spacing, baseY + 2 * (keySize + spacing), "RMB", KeystrokeEventHandler.rightMousePressed);
+        // Row 3: LMB and RMB - TEXT ONLY
+        drawText(mc, baseX, baseY + keySize + 50, "LMB", KeystrokeEventHandler.leftMousePressed);
+        drawText(mc, baseX + 60, baseY + keySize + 50, "RMB", KeystrokeEventHandler.rightMousePressed);
 
-        // Row 4: Numbers 4, |, 0
-        drawKey(mc, baseX, baseY + 3 * (keySize + spacing), "4", false);
-        drawKey(mc, baseX + keySize + spacing, baseY + 3 * (keySize + spacing), "|", false);
-        drawKey(mc, baseX + 2 * (keySize + spacing), baseY + 3 * (keySize + spacing), "0", false);
+        // Row 4: Numbers 4, |, 0 - TEXT ONLY
+        drawText(mc, baseX, baseY + keySize + 80, "4", false);
+        drawText(mc, baseX + 35, baseY + keySize + 80, "|", false);
+        drawText(mc, baseX + 70, baseY + keySize + 80, "0", false);
 
         // Draw CPS counter above
         String cpsText = "CPS: " + KeystrokeEventHandler.getCPS();
-        mc.fontRendererObj.drawStringWithShadow(cpsText, baseX, baseY - 15, 0xFFFFFF);
+        mc.fontRendererObj.drawStringWithShadow(cpsText, baseX, baseY - 20, 0xFFFFFF);
     }
 
-    private void drawKey(Minecraft mc, int x, int y, String text, boolean pressed) {
-        int keySize = KeystrokeConfig.KEY_SIZE;
+    private void drawKeyBox(Minecraft mc, int x, int y, String text, boolean pressed) {
+        int keySize = 50;
         int bgColor = pressed ? KeystrokeConfig.COLOR_ACTIVE : KeystrokeConfig.COLOR_INACTIVE;
         int textColor = pressed ? KeystrokeConfig.COLOR_TEXT_ACTIVE : KeystrokeConfig.COLOR_TEXT_INACTIVE;
         int borderColor = KeystrokeConfig.COLOR_BORDER;
@@ -59,6 +59,11 @@ public class KeystrokeRenderer {
         int textX = x + keySize / 2 - mc.fontRendererObj.getStringWidth(text) / 2;
         int textY = y + keySize / 2 - 4;
         mc.fontRendererObj.drawStringWithShadow(text, textX, textY, textColor);
+    }
+
+    private void drawText(Minecraft mc, int x, int y, String text, boolean pressed) {
+        int textColor = pressed ? 0xFF00FF00 : 0xFFFFFFFF; // Green if pressed, white if not
+        mc.fontRendererObj.drawStringWithShadow(text, x, y, textColor);
     }
 
     private void drawRect(int x1, int y1, int x2, int y2, int color) {
